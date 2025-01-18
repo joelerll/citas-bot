@@ -40,7 +40,7 @@ const insertOnDb = (query) => {
 
 const updateOnDb = (query, update) => {
   return new Promise((resolve, reject) => {
-    return db.update(query, update, {}, function (err, docs) {
+    return db.update(query, { $set: update }, {}, function (err, docs) {
       if (err) reject(err)
       resolve(docs)
     });
@@ -73,7 +73,7 @@ const runScrapper = async () => {
         return await sendMessages('Error on bot')
     }
     const found = elements.some((element) => !_.includes(notValid, element))
-    if (found) return await sendMessages('!!!!! Disponible')
+    if (found) return await sendMessages('!!!!! Disponible', true)
     return await sendMessages(`❌ Nada ${start}`)
   } catch(err) {
     console.log('errror: ', err)
@@ -104,13 +104,15 @@ bot.on('message', async (msg) => {
     const found = await findOnDb(chat)
     if (!found) {
       await insertOnDb({ ...chat, start, silent: messageText === '/silent' })
-      return bot.sendMessage(chatId, `Your user was ${messageText}`);
+      return bot.sendMessage(chatId, `Your user created and ${messageText}`);
     }
-    await updateOnDb({ chat: found.id }, { ...chat, silent: messageText === '/silent' })
+    await updateOnDb({ id: found.id }, { silent: messageText === '/silent' })
     bot.sendMessage(chatId, `Your user was ${messageText}`);
   } else if (messageText === '/myuser') {
     const found = await findOnDb(chat)
     bot.sendMessage(chatId, `Your user: ${JSON.stringify(found)}`);
+  } else if (messageText === '/ping') {
+    bot.sendMessage(chatId, 'The bot is live')
   } else {
     bot.sendMessage(chatId, 'type: */start* for register');
   }
