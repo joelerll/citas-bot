@@ -38,6 +38,15 @@ const insertOnDb = (query) => {
   })
 }
 
+const updateOnDb = (query, update) => {
+  return new Promise((resolve, reject) => {
+    return db.update(query, update, {}, function (err, docs) {
+      if (err) reject(err)
+      resolve(docs)
+    });
+  })
+}
+
 
 const sendMessages = async (message) => {
   const chats = await findAll({})
@@ -45,7 +54,7 @@ const sendMessages = async (message) => {
     console.log('=== error: ', 'No users registered')
     return;
   }
-  const messages = chats.map((chat) => bot.sendMessage(chat.id, message))
+  const messages = chats.filter((chat) => !chat.silent).map((chat) => bot.sendMessage(chat.id, message))
   return Promise.all(messages)
 }
 
@@ -79,18 +88,29 @@ cron.schedule('1,5,10,15 * * * *', async () => {
 bot.on('message', async (msg) => {
   const messageText = msg.text;
   const chatId = msg.chat.id;
+  const chat = { id: chatId }
   if (messageText === '/start') {
     const start = DateTime.now().toFormat('MM-dd-yyyy_H_mm_ss').toLocaleString()
-    const chat = { id: chatId }
     const found = await findOnDb(chat)
     if (!found) {
-      await insertOnDb({ ...chat, start })
+      await insertOnDb({ ...chat, start, silent: false })
       return bot.sendMessage(chatId, 'Welcome to the bot!');
     }
     bot.sendMessage(chatId, 'Already setted');
   } else if (messageText === '/run') {
     bot.sendMessage(chatId, 'Started scrapper');
     await runScrapper()
+  } else if (messageText === '/silent' || messageText === '/verbose') {
+    const found = await findOnDb(chat)
+    if (!found) {
+      await insertOnDb({ ...chat, start, silent: messageText === '/silent' })
+      return bot.sendMessage(chatId, `Your user was ${messageText}`);
+    }
+    await updateOnDb({ chat: found.id }, { ...chat, silent: messageText === '/silent' })
+    bot.sendMessage(chatId, `Your user was ${messageText}`);
+  } else if (messageText === '/myuser') {
+    const found = await findOnDb(chat)
+    bot.sendMessage(chatId, `Your user: ${JSON.stringify(found)}`);
   } else {
     bot.sendMessage(chatId, 'type: */start* for register');
   }

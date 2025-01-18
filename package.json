@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cross-env": "^7.0.3",
     "lodash": "^4.17.21",
     "luxon": "^3.5.0",
     "nedb": "^1.8.0",
