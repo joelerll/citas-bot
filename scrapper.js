@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 const { DateTime } = require("luxon");
 const path = require('path')
 const _ = require('lodash')
+const os = require('os');
 
 const sleep = (time = randomIntFromInterval(3000, 6000)) => new Promise(resolve => setTimeout(resolve, time))
 
@@ -11,13 +12,15 @@ function randomIntFromInterval(min, max) { // min and max included
 }
 
 async function getVisual() {
-  console.log('=== Start')
+  console.log('=== Start: ', os.platform())
   const start = DateTime.now().toFormat('MM-dd-yyyy_mm_H_mm_ss').toLocaleString()
   const URL = 'https://apps.registrocivil.gob.ec/portalCiudadano/login.jsf'
   const browser = await puppeteer.launch({
     headless: true,
-    // browser: "firefox"
-    product: 'firefox'
+    ...(os.platform() !== 'win32' ? {
+      executablePath: '/usr/bin/chromium-browser',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    } : {})
   })
 	try {
 

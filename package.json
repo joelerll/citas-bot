@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node --env-file=.env index.js",
-    "prueba": "node --env-file=.env prueba.js",
-    "install": "cross-env PUPPETEER_PRODUCT=firefox npm i"
+    "prueba": "node --env-file=.env prueba.js"
   },
   "author": "",
   "license": "ISC",
