@@ -48,13 +48,13 @@ const updateOnDb = (query, update) => {
 }
 
 
-const sendMessages = async (message) => {
+const sendMessages = async (message, isError) => {
   const chats = await findAll({})
   if (_.isEmpty(chats)) {
     console.log('=== error: ', 'No users registered')
     return;
   }
-  const messages = chats.filter((chat) => !chat.silent).map((chat) => bot.sendMessage(chat.id, message))
+  const messages = chats.filter((chat) => !isError && !chat.silent).map((chat) => bot.sendMessage(chat.id, message))
   return Promise.all(messages)
 }
 
@@ -77,7 +77,7 @@ const runScrapper = async () => {
     return await sendMessages(`❌ Nada ${start}`)
   } catch(err) {
     console.log('errror: ', err)
-    return await sendMessages('Error on scheduler')
+    return await sendMessages('Error on scheduler', true)
   }
 }
 
