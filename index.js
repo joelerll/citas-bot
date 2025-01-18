@@ -3,6 +3,7 @@ const cron = require('node-cron');
 const _ = require('lodash')
 const scrapper = require('./scrapper')
 const Datastore = require('nedb')
+const { DateTime } = require("luxon");
 const db = new Datastore({ filename: 'db.js', autoload: true });
 db.loadDatabase();
 const token = process.env.NODE_TELEGRAM_TOKEN;
@@ -75,10 +76,11 @@ bot.on('message', async (msg) => {
   const messageText = msg.text;
   const chatId = msg.chat.id;
   if (messageText === '/start') {
-    const chat = { id: chatId, date: new Date() }
+    const start = DateTime.now().toFormat('MM-dd-yyyy_mm_H_mm_ss').toLocaleString()
+    const chat = { id: chatId }
     const found = await findOnDb(chat)
     if (!found) {
-      await insertOnDb(chat)
+      await insertOnDb({ ...chat, start })
       return bot.sendMessage(chatId, 'Welcome to the bot!');
     }
     bot.sendMessage(chatId, 'Already setted');
