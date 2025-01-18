@@ -54,7 +54,7 @@ const sendMessages = async (message, isError) => {
     console.log('=== error: ', 'No users registered')
     return;
   }
-  const messages = chats.filter((chat) => !isError && !chat.silent).map((chat) => bot.sendMessage(chat.id, message))
+  const messages = chats.filter((chat) => isError || !chat.silent).map((chat) => bot.sendMessage(chat.id, message))
   return Promise.all(messages)
 }
 
