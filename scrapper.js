@@ -13,7 +13,7 @@ function randomIntFromInterval(min, max) { // min and max included
 
 async function getVisual() {
   console.log('=== Start: ', os.platform())
-  const start = DateTime.now().toFormat('MM-dd-yyyy_mm_H_mm_ss').toLocaleString()
+  const start = DateTime.now().toFormat('MM-dd-yyyy_H_mm_ss').toLocaleString()
   const URL = 'https://apps.registrocivil.gob.ec/portalCiudadano/login.jsf'
   const browser = await puppeteer.launch({
     headless: true,
@@ -132,7 +132,7 @@ async function getVisual() {
       els.map(el => el.innerHTML));
     elements = [...elements, element5]
     // console.log('=== elements: ', elements)
-    const end = DateTime.now().toFormat('MM-dd-yyyy_mm_H_mm_ss').toLocaleString()
+    const end = DateTime.now().toFormat('MM-dd-yyyy_H_mm_ss').toLocaleString()
     await fs.writeFile(path.join(__dirname, 'runnings', `${start}.json`), JSON.stringify({ start, end, elements: _.flatten(elements) }, null, 2));
 
     await sleep()

@@ -51,7 +51,7 @@ const sendMessages = async (message) => {
 
 sendMessages('Start bot')
 
-cron.schedule('1,5,10,15 * * * *', async () => {
+const runScrapper = async () => {
   try {
     const chats = await findAll({})
     if (_.isEmpty(chats)) {
@@ -65,18 +65,22 @@ cron.schedule('1,5,10,15 * * * *', async () => {
     }
     const found = elements.some((element) => !_.includes(notValid, element))
     if (found) return await sendMessages('!!!!! Disponible')
-    return await sendMessages(`Nada ${start}`)
+    return await sendMessages(`❌ Nada ${start}`)
   } catch(err) {
     console.log('errror: ', err)
     return await sendMessages('Error on scheduler')
   }
+}
+
+cron.schedule('1,5,10,15 * * * *', async () => {
+  await runScrapper()
 });
 
 bot.on('message', async (msg) => {
   const messageText = msg.text;
   const chatId = msg.chat.id;
   if (messageText === '/start') {
-    const start = DateTime.now().toFormat('MM-dd-yyyy_mm_H_mm_ss').toLocaleString()
+    const start = DateTime.now().toFormat('MM-dd-yyyy_H_mm_ss').toLocaleString()
     const chat = { id: chatId }
     const found = await findOnDb(chat)
     if (!found) {
@@ -84,6 +88,9 @@ bot.on('message', async (msg) => {
       return bot.sendMessage(chatId, 'Welcome to the bot!');
     }
     bot.sendMessage(chatId, 'Already setted');
+  } else if (messageText === '/run') {
+    bot.sendMessage(chatId, 'Started scrapper');
+    await runScrapper()
   } else {
     bot.sendMessage(chatId, 'type: */start* for register');
   }
