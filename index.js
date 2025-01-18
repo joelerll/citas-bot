@@ -50,7 +50,7 @@ const sendMessages = async (message) => {
 
 sendMessages('Start bot')
 
-cron.schedule('42 * * * *', async () => { // 1,5,10,15
+cron.schedule('1,5,10,15 * * * *', async () => {
   try {
     const chats = await findAll({})
     if (_.isEmpty(chats)) {
