@@ -3,6 +3,7 @@ const cron = require('node-cron');
 const _ = require('lodash')
 const scrapper = require('./scrapper')
 const Datastore = require('nedb')
+const { exec } = require('child_process');
 const { DateTime } = require("luxon");
 const db = new Datastore({ filename: 'db.js', autoload: true });
 db.loadDatabase();
@@ -15,6 +16,12 @@ const bot = new TelegramBot(token, { polling: true, request: {
 } });
 
 const notValid = ['No disponible', 'Reservado', 'Por habilitar']
+
+const startPlay = async (startInLoop) => {
+  exec('mplayer medieval.wav', () => {
+    if (startInLoop) startPlay(true)
+  });
+}
 
 const findOnDb = (query) => {
   return new Promise((resolve, reject) => {
@@ -78,7 +85,10 @@ const runScrapper = async () => {
         return await sendMessages(`Error on bot: ${error}`, true)
     }
     const found = elements.some((element) => !_.includes(notValid, element))
-    if (found) return await sendMessages('✅ !!!!! Disponible', true)
+    if (found) {
+      await sendMessages('✅ !!!!! Disponible', true)
+      return startPlay(true)
+    }
     return await sendMessages(`❌ Nada ${start}`)
   } catch(err) {
     console.log('errror: ', err)
@@ -125,6 +135,8 @@ bot.on('message', async (msg) => {
     bot.sendMessage(chatId, `Your user: ${JSON.stringify(found)}`);
   } else if (messageText === '/ping') {
     bot.sendMessage(chatId, 'The bot is live')
+  } else if (messageText === '/song') {
+    startPlay()
   } else {
     bot.sendMessage(chatId, 'type: */start* for register');
   }

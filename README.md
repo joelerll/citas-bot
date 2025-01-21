@@ -2,6 +2,10 @@
 1. Install dependencies
 
 ```sh
+apt install mplayer
+```
+
+```sh
 npm i
 ```
 
