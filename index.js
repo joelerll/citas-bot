@@ -7,7 +7,12 @@ const { DateTime } = require("luxon");
 const db = new Datastore({ filename: 'db.js', autoload: true });
 db.loadDatabase();
 const token = process.env.NODE_TELEGRAM_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: true, request: {
+  agentOptions: {
+      keepAlive: true,
+      family: 4
+  }
+} });
 
 const notValid = ['No disponible', 'Reservado', 'Por habilitar']
 
@@ -58,7 +63,7 @@ const sendMessages = async (message, isError) => {
   return Promise.all(messages)
 }
 
-sendMessages('Start bot')
+sendMessages('Start bot', true)
 
 const runScrapper = async () => {
   try {
@@ -70,20 +75,27 @@ const runScrapper = async () => {
     const { error, start, end, elements } = await scrapper();
     if (error) {
         console.log('=== error: ', error)
-        return await sendMessages('Error on bot')
+        return await sendMessages(`Error on bot: ${error}`, true)
     }
     const found = elements.some((element) => !_.includes(notValid, element))
-    if (found) return await sendMessages('!!!!! Disponible', true)
+    if (found) return await sendMessages('✅ !!!!! Disponible', true)
     return await sendMessages(`❌ Nada ${start}`)
   } catch(err) {
     console.log('errror: ', err)
-    return await sendMessages('Error on scheduler', true)
+    return await sendMessages(`Error on scheduler: ${err.message}`, true)
   }
 }
 
-cron.schedule('1,5,10,15 * * * *', async () => {
+cron.schedule('1,5,15 * * * *', async () => {
   await runScrapper()
 });
+
+cron.schedule('0 9,12,16,23 * * *', async () => {
+  await sendMessages('I am living', true)
+});
+
+bot.on("polling_error", (msg) => console.log('pooling error', msg));
+
 
 bot.on('message', async (msg) => {
   const messageText = msg.text;
