@@ -125,12 +125,37 @@ async function getVisual() {
     elements = [...elements, element4]
 
     await sleep()
-    console.log('=== next button 5')
+    console.log('=== next button 4')
     await frame.$eval('.fc-next-button', el => el.click());
     await sleep(8000)
     const element5 = await frame.$$eval('.fc-title', els =>
       els.map(el => el.innerHTML));
     elements = [...elements, element5]
+
+    await sleep()
+    console.log('=== next button 5')
+    await frame.$eval('.fc-next-button', el => el.click());
+    await sleep(8000)
+    const element6 = await frame.$$eval('.fc-title', els =>
+      els.map(el => el.innerHTML));
+    elements = [...elements, element6]
+
+    await sleep()
+    console.log('=== next button 5')
+    await frame.$eval('.fc-next-button', el => el.click());
+    await sleep(8000)
+    const element7 = await frame.$$eval('.fc-title', els =>
+      els.map(el => el.innerHTML));
+    elements = [...elements, element7]
+
+    await sleep()
+    console.log('=== next button ')
+    await frame.$eval('.fc-next-button', el => el.click());
+    await sleep(8000)
+    const element8 = await frame.$$eval('.fc-title', els =>
+      els.map(el => el.innerHTML));
+    elements = [...elements, element8]
+
     // console.log('=== elements: ', elements)
     const end = DateTime.now().toFormat('MM-dd-yyyy_H_mm_ss').toLocaleString()
     await fs.writeFile(path.join(__dirname, 'runnings', `${start}.json`), JSON.stringify({ start, end, elements: _.flatten(elements) }, null, 2));

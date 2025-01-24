@@ -96,7 +96,7 @@ const runScrapper = async () => {
   }
 }
 
-cron.schedule('1,5,15 * * * *', async () => {
+cron.schedule('1,5,30,45 * * * *', async () => {
   await runScrapper()
 });
 
